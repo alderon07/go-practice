@@ -1,14 +1,14 @@
 package main
 
 import (
-	"bufio"
-	"errors"
-	"fmt"
-	"os"
-	"strconv"
-	"strings"
-	"time"
-	// set "github.com/duke-git/lancet/v2/datastructure/set"
+  "bufio"
+  "errors"
+  "fmt"
+  "os"
+  "strconv"
+  "strings"
+  "time"
+  // set "github.com/duke-git/lancet/v2/datastructure/set"
 )
 
 // advent of code 2023 Q2 part 1,2

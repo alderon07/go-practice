@@ -1,21 +1,22 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	// "rsc.io/quote"
-    "strconv"
-    "strings"
+  "bufio"
+  "fmt"
+  "os"
+
+  // "rsc.io/quote"
+  "strconv"
+  "strings"
 )
 
-func main() {
+func q1() {
     // fmt.Println(quote.Go())
     // fmt.Println(quote.Hello())
     // fmt.Println(quote.Glass())
     // fmt.Println(quote.Opt())
 
-    lines, err := readFile("data.txt")
+    lines, err := ReadFile("data.txt")
 
     if err != nil {
         fmt.Println(err)
@@ -26,7 +27,7 @@ func main() {
     var calibrationValues []int
 
     for _, char := range lines {
-        numbers := findNumbers(char)
+        numbers := FindNumbers(char)
 
         fmt.Println(numbers)
 
@@ -54,7 +55,7 @@ func main() {
     fmt.Println(sum)
 }
 
-func findNumbers(input string) []int {
+func FindNumbers(input string) []int {
     var numbers []int
 
     chars := []rune(input)
@@ -87,7 +88,7 @@ func findNumbers(input string) []int {
     return numbers
 }
 
-func readFile(filepath string) ([]string, error) {
+func ReadFile(filepath string) ([]string, error) {
     file, err := os.Open(filepath)
     
     if err != nil {
