@@ -1,197 +1,224 @@
 package main
 
 import (
-    "encoding/json"
-    "net/http"
-    "log"
-    "strconv"
+	"encoding/json"
+	"errors"
+	"log"
+	"net/http"
 )
 
-// Sample data representing players
-var data = map[string]Player{
-    "1": {
-        ID: "1",
-        Name: "Messi",
-        JerseyNumber: 10,
-        Rating: 99,
-    },
-    "2": {
-        ID: "2",
-        Name: "Ronaldo",
-        JerseyNumber: 7,
-        Rating: 98,
-    },
-    "3": {
-        ID: "3",
-        Name: "Neymar",
-        JerseyNumber: 10,
-        Rating: 95,
-    },
+// PlayerHandler contains the player service and HTTP handlers
+type PlayerHandler struct {
+	service *PlayerService
 }
 
-// GetPlayers handles the GET request to fetch all players
+// NewPlayerHandler creates a new PlayerHandler
+func NewPlayerHandler(service *PlayerService) *PlayerHandler {
+	return &PlayerHandler{service: service}
+}
+
+// sendJSONResponse is a helper function to send JSON responses
+func (h *PlayerHandler) sendJSONResponse(w http.ResponseWriter, status int, response Response) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error encoding JSON response: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+}
+
+// sendErrorResponse is a helper function to send error responses
+func (h *PlayerHandler) sendErrorResponse(w http.ResponseWriter, status int, message string, err error) {
+	response := Response{
+		Status:  "error",
+		Message: message,
+		Error:   err.Error(),
+	}
+	
+	log.Printf("Error: %s - %v", message, err)
+	h.sendJSONResponse(w, status, response)
+}
+
+// GetPlayers handles GET /players - fetch all players
+func (h *PlayerHandler) GetPlayers(w http.ResponseWriter, r *http.Request) {
+	players := h.service.GetAllPlayers()
+	
+	response := Response{
+		Status:  "success",
+		Message: "Players fetched successfully",
+		Data:    players,
+	}
+	
+	log.Printf("GET /players - returned %d players", len(players))
+	h.sendJSONResponse(w, http.StatusOK, response)
+}
+
+// GetPlayer handles GET /players/{id} - fetch a single player
+func (h *PlayerHandler) GetPlayer(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		h.sendErrorResponse(w, http.StatusBadRequest, "Player ID is required", errors.New("missing player ID"))
+		return
+	}
+	
+	player, err := h.service.GetPlayerByID(id)
+	if err != nil {
+		if errors.Is(err, ErrPlayerNotFound) {
+			h.sendErrorResponse(w, http.StatusNotFound, "Player not found", err)
+			return
+		}
+		h.sendErrorResponse(w, http.StatusInternalServerError, "Failed to get player", err)
+		return
+	}
+	
+	response := Response{
+		Status:  "success",
+		Message: "Player fetched successfully",
+		Data:    player,
+	}
+	
+	log.Printf("GET /players/%s - returned player: %s", id, player.Name)
+	h.sendJSONResponse(w, http.StatusOK, response)
+}
+
+// CreatePlayer handles POST /players - create a new player
+func (h *PlayerHandler) CreatePlayer(w http.ResponseWriter, r *http.Request) {
+	var req PlayerRequest
+	
+	// Parse JSON request body
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.sendErrorResponse(w, http.StatusBadRequest, "Invalid JSON format", err)
+		return
+	}
+	
+	// Create the player
+	player, err := h.service.CreatePlayer(req)
+	if err != nil {
+		if errors.Is(err, ErrInvalidInput) {
+			h.sendErrorResponse(w, http.StatusBadRequest, "Invalid input", err)
+			return
+		}
+		if errors.Is(err, ErrPlayerExists) {
+			h.sendErrorResponse(w, http.StatusConflict, "Player already exists", err)
+			return
+		}
+		h.sendErrorResponse(w, http.StatusInternalServerError, "Failed to create player", err)
+		return
+	}
+	
+	response := Response{
+		Status:  "success",
+		Message: "Player created successfully",
+		Data:    player,
+	}
+	
+	log.Printf("POST /players - created player: %s (ID: %s)", player.Name, player.ID)
+	h.sendJSONResponse(w, http.StatusCreated, response)
+}
+
+// UpdatePlayer handles PUT /players/{id} - update an existing player
+func (h *PlayerHandler) UpdatePlayer(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		h.sendErrorResponse(w, http.StatusBadRequest, "Player ID is required", errors.New("missing player ID"))
+		return
+	}
+	
+	var req PlayerRequest
+	
+	// Parse JSON request body
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.sendErrorResponse(w, http.StatusBadRequest, "Invalid JSON format", err)
+		return
+	}
+	
+	// Update the player
+	player, err := h.service.UpdatePlayer(id, req)
+	if err != nil {
+		if errors.Is(err, ErrPlayerNotFound) {
+			h.sendErrorResponse(w, http.StatusNotFound, "Player not found", err)
+			return
+		}
+		if errors.Is(err, ErrInvalidInput) {
+			h.sendErrorResponse(w, http.StatusBadRequest, "Invalid input", err)
+			return
+		}
+		if errors.Is(err, ErrPlayerExists) {
+			h.sendErrorResponse(w, http.StatusConflict, "Player conflict", err)
+			return
+		}
+		h.sendErrorResponse(w, http.StatusInternalServerError, "Failed to update player", err)
+		return
+	}
+	
+	response := Response{
+		Status:  "success",
+		Message: "Player updated successfully",
+		Data:    player,
+	}
+	
+	log.Printf("PUT /players/%s - updated player: %s", id, player.Name)
+	h.sendJSONResponse(w, http.StatusOK, response)
+}
+
+// DeletePlayer handles DELETE /players/{id} - delete a player
+func (h *PlayerHandler) DeletePlayer(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		h.sendErrorResponse(w, http.StatusBadRequest, "Player ID is required", errors.New("missing player ID"))
+		return
+	}
+	
+	player, err := h.service.DeletePlayer(id)
+	if err != nil {
+		if errors.Is(err, ErrPlayerNotFound) {
+			h.sendErrorResponse(w, http.StatusNotFound, "Player not found", err)
+			return
+		}
+		h.sendErrorResponse(w, http.StatusInternalServerError, "Failed to delete player", err)
+		return
+	}
+	
+	response := Response{
+		Status:  "success",
+		Message: "Player deleted successfully",
+		Data:    player,
+	}
+	
+	log.Printf("DELETE /players/%s - deleted player: %s", id, player.Name)
+	h.sendJSONResponse(w, http.StatusOK, response)
+}
+
+// Legacy handlers for backward compatibility (keeping the original function signatures)
+// These use the global service instance
+
+var globalPlayerService *PlayerService
+
+func init() {
+	globalPlayerService = NewPlayerService()
+}
+
+// GetPlayers is the legacy handler for backward compatibility
 func GetPlayers(w http.ResponseWriter, r *http.Request) {
-    response := Response{}
-    players := []Player{}
-
-    // Fetch all players from the data map
-    for _, v := range data {
-        players = append(players, v)
-    }
-
-    // Prepare the response
-    response.Message = "players fetched successfully"
-    response.Status = "success"
-    response.Data = players
-    
-    // Convert response to JSON
-    jsonResponse, err := json.Marshal(response)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-
-    // Set response headers and write the JSON response
-    w.Header().Set("Content-Type", "application/json")
-    w.Write(jsonResponse)
-
-    // Log the response
-    log.Printf("GET /players response: %v", string(jsonResponse))
+	handler := NewPlayerHandler(globalPlayerService)
+	handler.GetPlayers(w, r)
 }
 
-// DeletePlayer handles the DELETE request to remove a player by ID
-func DeletePlayer(w http.ResponseWriter, r *http.Request) {
-    response := Response{}
-
-    // Get the player ID from the request path
-    id := r.PathValue("id")
-    player := data[id]
-    
-    // Remove the player from the data map
-    for key := range data {
-        if key == id {
-            delete(data, key)
-            break
-        }
-    }
-
-    // Prepare the response
-    response.Message = "player deleted successfully"
-    response.Status = "success"
-    response.Data = []Player{player}
-    
-    // Convert response to JSON
-    jsonResponse, err := json.Marshal(response)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-
-    // Set response headers and write the JSON response
-    w.Header().Set("Content-Type", "application/json")
-    w.Write(jsonResponse)
-
-    // Log the response
-    log.Printf("DELETE /players response: %#v", player)
-}
-
-// UpdatePlayer handles the PUT request to update a player's details
-func UpdatePlayer(w http.ResponseWriter, r *http.Request) {
-    var response Response
-    var player Player
-
-    // Get the player ID from the request path
-    id := r.PathValue("id")
-    
-    // Parse the jersey number and rating from the form values
-    jerseyNumber, err := strconv.ParseInt(r.FormValue("jersey_number"), 10, 8)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
-
-    rating, err := strconv.ParseInt(r.FormValue("rating"), 10, 8)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
-
-    // Create a Player struct with the updated details
-    playerUpdateTo := Player{
-        JerseyNumber: int8(jerseyNumber),
-        Rating: int8(rating),
-    }
-
-    // Update the player in the data map
-    player = data[id]
-    player.Update(playerUpdateTo)
-    data[id] = player
-
-    // Prepare the response
-    response.Message = "player updated successfully"
-    response.Status = "success"
-    response.Data = []Player{player}
-
-    // Convert response to JSON
-    jsonResponse, err := json.Marshal(response)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-
-    // Set response headers and write the JSON response
-    w.Header().Set("Content-Type", "application/json")
-    w.Write(jsonResponse)
-
-    // Log the response
-    log.Printf("PUT /players response: %#v", player)
-}
-
-// CreatePlayer handles the POST request to create a new player
+// CreatePlayer is the legacy handler for backward compatibility
 func CreatePlayer(w http.ResponseWriter, r *http.Request) {
-    var response Response
-    var player Player
-    
-    // Parse the jersey number and rating from the form values
-    jerseyNumber, err := strconv.ParseInt(r.FormValue("jersey_number"), 10, 64)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+	handler := NewPlayerHandler(globalPlayerService)
+	handler.CreatePlayer(w, r)
+}
 
-    rating, err := strconv.ParseInt(r.FormValue("rating"), 10, 64)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+// UpdatePlayer is the legacy handler for backward compatibility
+func UpdatePlayer(w http.ResponseWriter, r *http.Request) {
+	handler := NewPlayerHandler(globalPlayerService)
+	handler.UpdatePlayer(w, r)
+}
 
-    // Create a new Player struct with the provided details
-    player = Player{
-        ID: strconv.Itoa(len(data) + 1),
-        Name: r.FormValue("name"),
-        JerseyNumber: int8(jerseyNumber),
-        Rating: int8(rating),
-    }
-
-    // Add the new player to the data map
-    data[player.ID] = player
-
-    // Prepare the response
-    response.Message = "player created successfully"
-    response.Status = "success"
-    response.Data = []Player{player}
-
-    // Convert response to JSON
-    jsonResponse, err := json.Marshal(response)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-
-    // Set response headers and write the JSON response
-    w.Header().Set("Content-Type", "application/json")
-    w.Write(jsonResponse)
-
-    // Log the response
-    log.Printf("POST /players response: %#v", player)
+// DeletePlayer is the legacy handler for backward compatibility
+func DeletePlayer(w http.ResponseWriter, r *http.Request) {
+	handler := NewPlayerHandler(globalPlayerService)
+	handler.DeletePlayer(w, r)
 }
