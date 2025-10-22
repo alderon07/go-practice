@@ -1,0 +1,3 @@
+run: ; go run ./cmd/todo/main.go
+test: ; go test ./...
+build: ; go build -o bin/todo ./cmd/todo
