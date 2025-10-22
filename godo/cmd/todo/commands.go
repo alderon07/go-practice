@@ -1,18 +1,28 @@
 package main
 
 import (
-    "fmt"
-    "log"
-    "time"
+	"fmt"
+	"log"
+	"time"
+)
+
+const (
+    GetItDoneNow = 3
+    IGotTime = 2
+    WeAreChilling = 1
 )
 
 type Todo struct {
-    Id int
-    Title string
-    Repeat string
-    Tags []string
-    Priority int8
-    after int
+    Id int                  `json:"id"`
+    Title string            `json:"title"`
+    DueAt time.Time         `json:"due_at,omitempty"`
+    CompleteAt time.Time    `json:"complete_at,omitempty"`
+    CreatedAt time.Time     `json:"created_at"`
+    
+    Repeat string           `json:"repeat,omitempty"`
+    Tags []string           `json:"tags,omitempty"`
+    Priority int8           `json:"priority,omitempty"`
+    AfterTodo int           `json:"after_todo,omitempty"`
 }
 
 // Helper for consistent error handling
@@ -22,7 +32,7 @@ func must(err error) {
     }
 }
 
-func RunAdd(title, dueStr, whenStr, repeat string, priority int, tags, after string) {
+func RunAdd(title string, due string, repeat, tags, priority, after_todo string) {
     if title == "" {
         log.Fatal("Error: -title is required")
     }

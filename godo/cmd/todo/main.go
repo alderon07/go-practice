@@ -43,6 +43,7 @@ func main() {
 
     switch cmd {
     case "add":
+
         addFlags := flag.NewFlagSet("add", flag.ExitOnError)
         // params for add cmd
         title := addFlags.String("title", "", "Task title (required)")
@@ -53,7 +54,7 @@ func main() {
         tags := addFlags.String("tags", "", "Comma-separated tags")
         after := addFlags.String("after", "", "Comma-separated dependency task IDs")
         _ = addFlags.Parse(args)
-        commands.RunAdd(*title, *dueStr, *when, *repeat, *priority, *tags, *after)
+        commands.RunAdd(title, dueStr, repeat, priority, tags, after)
 
     case "list":
         lsFlags := flag.NewFlagSet("ls", flag.ExitOnError)
@@ -82,13 +83,13 @@ func main() {
         }
         commands.RunRemove(rmFlags.Arg(0))
 
-    case "alerts":
-        alertFlags := flag.NewFlagSet("alerts", flag.ExitOnError)
-        watch := alertFlags.Bool("watch", false, "Continuously monitor for upcoming tasks")
-        interval := alertFlags.Duration("interval", 60*time.Second, "Polling interval")
-        ahead := alertFlags.Duration("ahead", 24*time.Hour, "Lookahead window for alerts")
-        _ = alertFlags.Parse(args)
-        commands.RunAlerts(*watch, *interval, *ahead)
+    // case "alerts":
+    //     alertFlags := flag.NewFlagSet("alerts", flag.ExitOnError)
+    //     watch := alertFlags.Bool("watch", false, "Continuously monitor for upcoming tasks")
+    //     interval := alertFlags.Duration("interval", 60*time.Second, "Polling interval")
+    //     ahead := alertFlags.Duration("ahead", 24*time.Hour, "Lookahead window for alerts")
+    //     _ = alertFlags.Parse(args)
+    //     commands.RunAlerts(*watch, *interval, *ahead)
 
     case "stats":
         commands.RunStats()
