@@ -55,10 +55,28 @@ godo rm 3
 
 The list view uses emojis to make information easy to scan:
 
-- **Status**: `[ ]` = pending, `[✓]` = done
-- **Priority**: 🔴 = high, 🟡 = medium, 🟢 = low
-- **Info**: 📝 = description, 📅 = due date, ⏰ = due soon/overdue
-- **Tags**: 🏷️ = tags, 🔄 = repeating, 🔗 = has dependencies
+**Status**:
+
+- `[ ]` - Pending task
+- `[✓]` - Completed task
+
+**Priority** (color-coded):
+
+- 🔴 - High priority (p3)
+- 🟡 - Medium priority (p2)
+- 🟢 - Low priority (p1)
+
+**Task Information**:
+
+- 📝 - Task description (shown in `-detailed` view)
+- 📅 - Due date (normal)
+- ⏰ - Due soon or overdue
+- 🏷️ - Tags
+- 🔄 - Recurring task (daily/weekly/monthly)
+- 🔗 - Task has dependencies
+- ⚠️ - Task is blocked (dependencies not met)
+- 🕐 - Created timestamp (shown in `-detailed` view)
+- ✅ - Completion timestamp (shown in `-detailed` view)
 
 ### Example Workflows
 

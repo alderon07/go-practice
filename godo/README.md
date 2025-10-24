@@ -155,6 +155,48 @@ godo list -before 2025-10-31
 godo list -tags "work" -sort priority -grep "review" -detailed
 ```
 
+### Understanding Task Display
+
+The list view uses visual indicators (emojis) to make information easy to scan:
+
+**Status**:
+
+- `[ ]` - Pending task
+- `[✓]` - Completed task
+
+**Priority** (color-coded):
+
+- 🔴 - High priority (p3)
+- 🟡 - Medium priority (p2)
+- 🟢 - Low priority (p1)
+
+**Task Information**:
+
+- 📝 - Task description (shown in `-detailed` view)
+- 📅 - Due date (normal)
+- ⏰ - Due soon or overdue (with indicators: "soon" or "OVERDUE!")
+- 🏷️ - Tags
+- 🔄 - Recurring task (daily/weekly/monthly)
+- 🔗 - Task has dependencies
+- ⚠️ - Task is blocked (dependencies not met)
+- 🕐 - Created timestamp (shown in `-detailed` view)
+- ✅ - Completion timestamp (shown in `-detailed` view)
+
+**Example Output**:
+
+```
+ 1. [ ] 🔴 Complete project proposal
+    📝 Write and submit the Q4 project proposal
+    ⏰ Due: 2025-10-26 00:00 (soon)
+    🏷️  #work #important
+    🕐 Created: 2025-10-23 23:49
+
+ 2. [✓] 🟡 Review pull requests
+    📝 Check and merge pending PRs
+    🏷️  #work #code-review
+    ✅ Completed: 2025-10-23 15:30
+```
+
 ### Mark Task as Done
 
 ```bash
