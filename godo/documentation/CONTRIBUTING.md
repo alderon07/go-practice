@@ -194,8 +194,11 @@ func TestTaskHasTag(t *testing.T) {
 
 ### Documentation Files:
 
-- `README.md` - Main project documentation
-- `API.md` - HTTP API reference
+- [README.md](../README.md) - Main project documentation
+- [API.md](API.md) - HTTP API reference
+- [QUICK_START.md](QUICK_START.md) - Quick reference guide
+- [EMOJI_REFERENCE.md](EMOJI_REFERENCE.md) - Emoji usage guidelines
+- [CHANGELOG.md](CHANGELOG.md) - Version history
 - `CONTRIBUTING.md` - This file
 - Code comments - Inline documentation
 
@@ -210,8 +213,13 @@ godo/
 │   ├── alerts/        # Alert system
 │   ├── notifications/ # Notifications
 │   └── server/        # HTTP server
+├── documentation/     # All documentation files
+│   ├── API.md
+│   ├── CHANGELOG.md
+│   ├── CONTRIBUTING.md
+│   ├── EMOJI_REFERENCE.md
+│   └── QUICK_START.md
 ├── .github/           # GitHub Actions
-├── docs/              # Additional documentation
 └── tests/             # Integration tests (future)
 ```
 

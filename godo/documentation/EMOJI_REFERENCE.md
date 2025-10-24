@@ -94,10 +94,10 @@ This document defines the standard emojis used throughout the godo project for c
 
 ## File Usage
 
-- **commands.go**: All task display emojis
-- **README.md**: Feature emojis in the features section
-- **QUICK_START.md**: Visual indicators section
-- **notifications/notify.go**: Notification bell emoji (🔔)
+- **cmd/todo/commands.go**: All task display emojis
+- **[README.md](../README.md)**: Feature emojis in the features section
+- **[QUICK_START.md](QUICK_START.md)**: Visual indicators section
+- **internal/notifications/notify.go**: Notification bell emoji (🔔)
 
 ## Do Not Use
 

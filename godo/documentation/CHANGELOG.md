@@ -19,9 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Task info: 📝 description, 📅 due date, ⏰ urgent, 🏷️ tags, 🔄 recurring, 🔗 dependencies, ⚠️ blocked, 🕐 created, ✅ completed
 - Smart due date indicators ("OVERDUE!" and "soon")
 - Visual header for today/week views with 📅 emoji
-- EMOJI_REFERENCE.md documenting all emoji usage
-- QUICK_START.md for quick command reference
-- CHANGELOG.md for tracking changes
+- [EMOJI_REFERENCE.md](EMOJI_REFERENCE.md) documenting all emoji usage
+- [QUICK_START.md](QUICK_START.md) for quick command reference
+- [CHANGELOG.md](CHANGELOG.md) for tracking changes
 
 ### Changed
 

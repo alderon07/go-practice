@@ -188,8 +188,10 @@ godo list -tags "sprint" -sort priority -detailed
 
 ## Need More Help?
 
-- Full documentation: `README.md`
-- API reference: `API.md`
+- Full documentation: [README.md](../README.md)
+- API reference: [API.md](API.md)
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Emoji reference: [EMOJI_REFERENCE.md](EMOJI_REFERENCE.md)
 - Server mode: `godo server -h`
 - Command help: `godo <command> -h`
 

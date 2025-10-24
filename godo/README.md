@@ -446,6 +446,12 @@ godo/
 │   │   └── notify.go       # Cross-platform notifications
 │   └── server/             # HTTP API server
 │       └── server.go       # REST API implementation
+├── documentation/          # All documentation files
+│   ├── API.md              # HTTP API reference
+│   ├── CHANGELOG.md        # Change history
+│   ├── CONTRIBUTING.md     # Contribution guidelines
+│   ├── EMOJI_REFERENCE.md  # Emoji usage guide
+│   └── QUICK_START.md      # Quick reference guide
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml          # Continuous integration
@@ -690,6 +696,16 @@ Future enhancements:
 - Collaboration features
 - Calendar integration
 - Email notifications
+
+## Documentation
+
+This README provides an overview and quick start guide. For more detailed information, see:
+
+- **[Quick Start Guide](documentation/QUICK_START.md)** - Quick command reference and common workflows
+- **[API Reference](documentation/API.md)** - Complete HTTP REST API documentation
+- **[Contributing Guide](documentation/CONTRIBUTING.md)** - How to contribute to the project
+- **[Emoji Reference](documentation/EMOJI_REFERENCE.md)** - Emoji meanings and usage guidelines
+- **[Changelog](documentation/CHANGELOG.md)** - Version history and changes
 
 ## Support
 
